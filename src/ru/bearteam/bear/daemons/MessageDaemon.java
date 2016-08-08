@@ -3,6 +3,7 @@ package ru.bearteam.bear.daemons;
 import ru.bearteam.bear.main.BearMain;
 import ru.bearteam.bear.network.Networker;
 
+//Azazaza
 public class MessageDaemon extends Thread {
     private Networker net;
 
