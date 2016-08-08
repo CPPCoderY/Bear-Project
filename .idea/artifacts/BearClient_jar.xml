@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="BearClient:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/BearClient_jar</output-path>
+    <root id="archive" name="BearClient.jar">
+      <element id="module-output" name="BearClient" />
+    </root>
+  </artifact>
+</component>
