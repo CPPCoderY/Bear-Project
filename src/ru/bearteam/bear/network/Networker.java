@@ -1,86 +1,92 @@
 package ru.bearteam.bear.network;
 
+import ru.bearteam.bear.serializableObjects.LoginRequest;
+import ru.bearteam.bear.serializableObjects.LoginStatus;
+import ru.bearteam.bear.serializableObjects.Message;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.logging.Logger;
 
 public class Networker {
     private Socket server;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+    private Logger log;
+    private String nick;
 
     public Networker(String host, int port, String name) {
         try {
+            log = Logger.getLogger("ru.bearteam.bear.network.Networker");
+            nick = name;
             this.server = new Socket(host, port);
             this.setOut(server.getOutputStream());
             this.setIn(server.getInputStream());
+            log.info("Connection successfully!");
+            login(nick);
         } catch (UnknownHostException e) {
-            System.out.println("Can not connect to host, aborting!!!");
             System.exit(1);
+            log.warning("Can not connect to remote server... Exit");
         } catch (IOException e) {
             e.printStackTrace();
+            log.severe("Unknown IO error");
         }
     }
 
     public void sendMessage(String message, String adress) {
-        try {
-            //1 is code of simple string message
-            getOut().write(1);
-            getOut().write(message.getBytes().length);
-            getOut().write(message.getBytes());
-            getOut().write(adress.getBytes().length);
-            getOut().write(adress.getBytes());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        writeObject(new Message(message, adress));
     }
 
     public void login(String name) {
-        try {
-            getOut().write(name.length());
-            getOut().write(name.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setName(name);
+        writeObject(loginRequest);
+        log.info("Trying to login");
+        Object o = this.readObject();
+        if (o instanceof LoginStatus) {
+            System.out.println(((LoginStatus) o).loginStatus());
         }
     }
 
-    public DataOutputStream getOut() {
-        return out;
-    }
-
-    public void setOut(OutputStream out) {
-        this.out = new DataOutputStream(out);
-    }
-
-    public DataInputStream getIn() {
-        return in;
-    }
-
-    public void setIn(InputStream in) {
-        this.in = new DataInputStream(in);
-    }
-
-    public String readString() {
-        int length = readInt();
-        byte[] data = new byte[length];
+    public Object readObject() {
         try {
-            getIn().read(data, 0, length);
-            return new String(data);
+            return getIn().readObject();
         } catch (IOException e) {
             e.printStackTrace();
+            log.severe("Unknown error while reading object from remote server");
+            return null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            log.severe("Can not type object from server");
             return null;
         }
     }
 
-    public int readInt() {
+    public void writeObject(Object o) {
         try {
-            int value = getIn().readInt();
-            return value;
+            getOut().writeObject(o);
+            getOut().flush();
         } catch (IOException e) {
             e.printStackTrace();
-            return -1;
+            log.severe("Unknown error while writing object to remote server...");
         }
+    }
+
+    public ObjectOutputStream getOut() {
+        return out;
+    }
+
+    public void setOut(OutputStream out) throws IOException {
+        this.out = new ObjectOutputStream(out);
+    }
+
+    public ObjectInputStream getIn() {
+        return in;
+    }
+
+    public void setIn(InputStream in) throws IOException {
+        this.in = new ObjectInputStream(in);
     }
 }
 
