@@ -6,7 +6,7 @@ public class Message implements Serializable {
     private String address;
     private String message;
 
-    public Message(String mes, String address) {
+    public Message(String mes, String address){
         setAddress(address);
         setMessage(mes);
     }

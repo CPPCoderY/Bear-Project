@@ -12,7 +12,7 @@ public class BearMain {
     public static void main(String[] args) {
         name = args[0];
         System.out.println("1");
-        networker = new Networker("alex2772.ru", 5123, args[0]);
+        networker = new Networker("localhost", 5123, name);
         System.out.println("2");
         MessageDaemon messageDaemon = new MessageDaemon(networker);
         messageDaemon.setDaemon(true);

@@ -14,6 +14,7 @@ public class MessageDaemon extends Thread {
     public void run() {
         while (true) {
             Object o = net.readObject();
+            System.out.println("Got object ...");
             if (o instanceof Message) {
                 System.out.println("New message from " + ((Message) o).getAddress() + ((Message) o).getMessage());
             }
